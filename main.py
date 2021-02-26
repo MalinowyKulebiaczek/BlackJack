@@ -8,7 +8,7 @@ values = {'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5,
           'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9,
           'Ten': 10, 'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
 
-playing = True  #variable to control main while loop - it defines whether player keeps on hitting or chooses to stand
+playing = True  # variable to control main while loop - it defines whether player keeps on hitting or chooses to stand
 
 
 class Card:
@@ -27,7 +27,7 @@ class Deck:
         self.cards = []
         for suit in suits:
             for rank in ranks:
-                self.cards.append(Card(suit, rank))     # building all the 52 cards in deck
+                self.cards.append(Card(suit, rank))  # building all the 52 cards in deck
 
     def __str__(self):
         deck_string = ''
@@ -67,15 +67,15 @@ class Hand:
         self.value = val
         self.adjust_for_ace()
 
-    def adjust_for_ace(self):   # function that changes value of aces (from 11 to 1) if hand value exceeds 21
+    def adjust_for_ace(self):  # function that changes value of aces (from 11 to 1) if hand value exceeds 21
         for card in self.cards:
-            if self.value <= 21:    # if hand value is under 21, we quit the method and don't change anything
+            if self.value <= 21:  # if hand value is under 21, we quit the method and don't change anything
                 break
             if card.rank == 'Ace':  # if we have an ace then we reduce its value by 10
                 self.value -= 10
 
 
-class Chips:   # in Polish: zetony
+class Chips:  # in Polish: zetony
 
     def __init__(self, total=100):
         self.total = total
@@ -143,73 +143,87 @@ def show_all(player, dealer):
 
 
 # win/lose functions
-def player_busts(player, dealer):
+def player_busts(player, dealer, chips):
     print("Player busts! Player value: ", player.value)
+    chips.lose_bet()
 
 
-def player_wins(player, dealer):
+def player_wins(player, dealer, chips):
     print("Player wins! Player value: ", player.value, "  Dealer value: ", dealer.value)
+    chips.win_bet()
 
 
-def dealer_busts(player, dealer):
+def dealer_busts(player, dealer, chips):
     print("Dealer busts! Dealer value: ", dealer.value)
+    chips.win_bet()
 
 
-def dealer_wins(player, dealer):
+def dealer_wins(player, dealer, chips):
     print("Dealer wins! Player value: ", player.value, "  Dealer value: ", dealer.value)
-'''
-# TESTY
-card1 = Card(suits[0], ranks[0])
-card2 = Card(suits[1], ranks[1])
-print(card1)
-print(card2)
-print(card1.rank)
-card1.rank = ranks[2]
-print(card1.rank)
+    chips.lose_bet()
 
-deck = Deck()
-print(deck)
-deck.shuffle_deck()
-print(deck)
-player = Hand()
-player.add_card(deck.deal())
-player.add_card(deck.deal())
-print(player.value)
-print(player)
-deck = Deck()
-print(deck)
-deck.shuffle_deck()
-print(deck)
-player = Hand()
-player.add_card(deck.deal())
-player.add_card(deck.deal())
-print(player.value)
-print(player)
 
-print("Player cards", *player.cards, sep='\t ')
-'''
+def push(player, dealer):
+    print("Player and dealer has the same value. It's a push! Player value: ", player.value, "\t Dealer value:",
+          dealer.value)
 
-'''
-deck = Deck()
-deck.shuffle_deck()
-print(deck)
-player = Hand()
-dealer = Hand()
-dealer.add_card(deck.deal())
-dealer.add_card(deck.deal())
-dealer.add_card(deck.deal())
-player.add_card(deck.deal())
-player.add_card(deck.deal())
-player.add_card(deck.deal())
-player.add_card(deck.deal())
-
-show_some(player, dealer)
-print("dealer:", dealer)
-print("player:", player)
-'''
 
 
 if __name__ == '__main__':
-    pass
+    while True:
+        print("Welcome to BlackJack! Get as close to 21 as you can without going over!\n \
+        Dealer hits until it reaches 17. Aces count as 1 or 11.")
 
+        deck = Deck()
+        deck.shuffle_deck()
+        player = Hand()
+        dealer = Hand()
+        player_chips = Chips()
 
+        # adding two card to dealer's and player's hand
+        dealer.add_card(deck.deal())
+        dealer.add_card(deck.deal())
+        player.add_card(deck.deal())
+        player.add_card(deck.deal())
+
+        # asking user to place a bet
+        take_bet(player_chips)
+
+        show_some(player, dealer)
+
+        while playing:
+
+            # player decides if he hits or stands
+            hit_or_stand(deck, player)
+            show_some(player, dealer)
+
+            if player.value > 21:
+                player_busts(player, dealer, player_chips)
+                break
+
+        if player.value <= 21:
+
+            while dealer.value < 17:
+                hit(deck, dealer)
+
+            show_all(player, dealer)
+
+            # win/loose scenarios
+            if dealer.value > 21:
+                dealer_busts(player, dealer, player_chips)
+            elif dealer.value > player.value:
+                dealer_wins(player, dealer, player_chips)
+            elif dealer.value < player.value:
+                player_wins(player, dealer, player_chips)
+            elif dealer.value == player.value:
+                push(player, dealer)
+
+        print("\n Player's total chips: ", player_chips.total)
+
+        inp = input("Would you like to play one more time? [y/n]")
+
+        if inp.lower() == 'y':
+            playing=True
+        else:
+            print("Thanks for playing!")
+            break
