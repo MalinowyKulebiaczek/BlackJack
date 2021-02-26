@@ -92,12 +92,13 @@ class Chips:  # in Polish: zetony
 def take_bet(chips):
     while True:
         try:
-            bet = int(input("What is your bet? (Integer)"))
+            print("Your current total of chips is: ", chips.total)
+            chips.bet = int(input("What is your bet? (Integer): "))
         except ValueError:
             print('It must  be an integer!')
         else:
             if chips.bet > chips.total:
-                print("You don't have enough chips! Your total of chips is ", chips.total)
+                print("You don't have enough chips! Your total of chips is: ", chips.total)
             else:
                 break
 
@@ -110,7 +111,7 @@ def hit(deck, hand):
 def hit_or_stand(deck, hand):
     global playing
     while True:
-        x = input("Do you want to hit or stand? [h/s]")
+        x = input("Do you want to hit or stand? [h/s] ")
 
         if x.lower() == 'h':
             print("Player hits")
@@ -171,8 +172,8 @@ def push(player, dealer):
 
 if __name__ == '__main__':
     while True:
-        print("Welcome to BlackJack! Get as close to 21 as you can without going over!\n \
-        Dealer hits until it reaches 17. Aces count as 1 or 11.")
+        print("Welcome to BlackJack! Get as close to 21 as you can without going over!\n",
+        "Dealer hits until it reaches 17. Aces count as 1 or 11.")
 
         deck = Deck()
         deck.shuffle_deck()
@@ -218,9 +219,9 @@ if __name__ == '__main__':
             elif dealer.value == player.value:
                 push(player, dealer)
 
-        print("\n Player's total chips: ", player_chips.total)
+        print("\nPlayer's total chips: ", player_chips.total)
 
-        inp = input("Would you like to play one more time? [y/n]")
+        inp = input("Would you like to play one more time? [y/n] ")
 
         if inp.lower() == 'y':
             playing=True
